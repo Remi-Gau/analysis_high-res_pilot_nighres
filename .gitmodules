@@ -2,3 +2,5 @@
 	path = code/lib/CPP_SPM
 	url = https://github.com/cpp-lln-lab/CPP_SPM.git
 	datalad-url = https://github.com/cpp-lln-lab/CPP_SPM.git
+[submodule "inputs/raw"]
+	datalad-url = git@gin.g-node.org:/RemiGau/V5_high-res_pilot-1_raw.git
