@@ -6,5 +6,5 @@
 	datalad-url = git@gin.g-node.org:/RemiGau/V5_high-res_pilot-1_raw.git
 [submodule "outputs/derivatives"]
 	path = outputs/derivatives
-	url = ./outputs/derivatives
+	url = git@gin.g-node.org:/cpp_brewery/analysis_V5_high-res_pilot_nighres_derivatives.git
 	datalad-id = 65cea15c-66cf-4b3b-bd86-5bc100be73d9
