@@ -4,3 +4,7 @@
 	datalad-url = https://github.com/cpp-lln-lab/CPP_SPM.git
 [submodule "inputs/raw"]
 	datalad-url = git@gin.g-node.org:/RemiGau/V5_high-res_pilot-1_raw.git
+[submodule "outputs/derivatives"]
+	path = outputs/derivatives
+	url = ./outputs/derivatives
+	datalad-id = 65cea15c-66cf-4b3b-bd86-5bc100be73d9
