@@ -3,6 +3,8 @@
 	url = https://github.com/cpp-lln-lab/CPP_SPM.git
 	datalad-url = https://github.com/cpp-lln-lab/CPP_SPM.git
 [submodule "inputs/raw"]
+	path = inputs/raw
+	url = git@gin.g-node.org:/RemiGau/V5_high-res_pilot-1_raw.git
 	datalad-url = git@gin.g-node.org:/RemiGau/V5_high-res_pilot-1_raw.git
 [submodule "outputs/derivatives"]
 	path = outputs/derivatives
