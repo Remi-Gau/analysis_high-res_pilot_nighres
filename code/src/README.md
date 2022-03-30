@@ -1,3 +1,0 @@
-# Source code
-
-# Main functions
