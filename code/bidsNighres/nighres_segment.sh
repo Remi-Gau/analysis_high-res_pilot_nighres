@@ -1,16 +1,16 @@
 #!/bin/sh
 
-# to be called from the root of the dataset
+# to be called from "code/bidsNighres"
 
-participant=pilot001
+participant="pilot001 pilot004 pilot005"
 
 root_dataset=${PWD}/../..
 
-input_dataset=${root_dataset}/outputs/derivatives/cpp_spm-preproc/
+input_dataset=${root_dataset}/inputs/raw/
 
 output_location=${root_dataset}/outputs/derivatives/bidsNighres/
 
-filter_file=${root_dataset}/code/filter_file.json
+filter_file=${root_dataset}/code/bidsNighres/filter_file.json
 
 echo "${input_dataset}"
 
