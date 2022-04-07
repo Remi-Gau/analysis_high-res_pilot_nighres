@@ -10,7 +10,6 @@
 	path = outputs/derivatives
 	url = git@gin.g-node.org:/cpp_brewery/analysis_V5_high-res_pilot_nighres_derivatives.git
 	datalad-id = 65cea15c-66cf-4b3b-bd86-5bc100be73d9
-[submodule "code/lin/bidsNighres"]
-	path = code/lin/bidsNighres
+[submodule "code/lib/bidsNighres"]
+	path = code/lib/bidsNighres
 	url = https://github.com/cpp-lln-lab/bidsNighres.git
-	datalad-url = https://github.com/cpp-lln-lab/bidsNighres.git
