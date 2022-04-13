@@ -14,18 +14,10 @@ filter_file=${root_dataset}/code/bidsNighres/filter_file.json
 
 echo "${input_dataset}"
 
-python ../lib/bidsNighres/run.py \
+python ../lib/bidsNighres/run_resample.py \
     --input-datasets "${input_dataset}" \
     --output-location "${output_location}" \
     --analysis-level subject \
     --participant-label "${participant}" \
     --action skullstrip \
-    --bids-filter-file "${filter_file}"
-
-python ../lib/bidsNighres/run.py \
-    --input-datasets "${input_dataset}" \
-    --output-location "${output_location}" \
-    --analysis-level subject \
-    --participant-label "${participant}" \
-    --action segment \
     --bids-filter-file "${filter_file}"

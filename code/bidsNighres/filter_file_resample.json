@@ -1,0 +1,13 @@
+{
+    "UNIT1": {
+        "datatype": "anat",
+        "suffix": "UNIT1",
+        "acquisition": "^r0p75$"
+    },
+    "inv2": {
+        "datatype": "anat",
+        "inv": 2,
+        "suffix": "MP2RAGE",
+        "acquisition": "^r0p75$"
+    }
+}
