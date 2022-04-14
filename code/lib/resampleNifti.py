@@ -1,3 +1,35 @@
+import numpy as np
+import nibabel as nb
+
+from nilearn.image import resample_img
+
+
+def resampleNifti(img, resampling_factor, filename):
+
+    nii = nb.load(img)
+
+    dimensions = nii.header.get_data_shape()
+
+    vox_size = nii.header.get_zooms()
+
+    new_voxel_size = vox_size[1] / resampling_factor
+
+    affine = nii.affine
+
+    new_affine = rescale_affine(
+        affine,
+        voxel_dims=[new_voxel_size, new_voxel_size, new_voxel_size],
+    )
+
+    resampled_img = resample_img(
+        img,
+        target_affine=new_affine,
+        target_shape=np.multiply(dimensions, resampling_factor),
+    )
+
+    resampled_img.to_filename(filename)
+
+
 def rescale_affine(input_affine, voxel_dims=[1, 1, 1], target_center_coords=None):
     """
     This function uses a generic approach to rescaling an affine to arbitrary
@@ -19,7 +51,6 @@ def rescale_affine(input_affine, voxel_dims=[1, 1, 1], target_center_coords=None
     target_affine : 4x4matrix
         The resampled image.
     """
-    import numpy as np
 
     # Initialize target_affine
     target_affine = input_affine.copy()

@@ -4,6 +4,10 @@
         "suffix": "UNIT1",
         "acquisition": "^r0p75$"
     },
+    "T1map": {
+        "datatype": "anat",
+        "suffix": "T1map"
+    },
     "inv2": {
         "datatype": "anat",
         "inv": 2,

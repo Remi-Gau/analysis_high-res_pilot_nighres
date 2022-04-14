@@ -1,8 +1,8 @@
-#!/bin/sh
+4#!/bin/sh
 
 # to be called from "code/bidsNighres"
 
-participant="pilot001 pilot004 pilot005"
+participant="pilot001 pilot004 pilot006"
 
 root_dataset=${PWD}/../..
 

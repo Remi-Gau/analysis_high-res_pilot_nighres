@@ -1,187 +1,245 @@
-import numpy as np
-import nibabel as nb
+from resampleNifti import resampleNifti
 
-from nilearn.image import resample_img
-
-from rescale_affine import rescale_affine
-
+import os
+import subprocess
+import click
 from os.path import abspath
+from os.path import dirname
 from os.path import join
+from os.path import realpath
+
 
 from bidsNighres.bidsNighres.bidsutils import get_bids_filter_config
 from bidsNighres.bidsNighres.bidsutils import get_dataset_layout
 from bidsNighres.bidsNighres.bidsutils import check_layout
 from bidsNighres.bidsNighres.bidsutils import init_derivatives_layout
-from bidsNighres.bidsNighres.bidsutils import create_bidsname
 from bidsNighres.bidsNighres.utils import print_to_screen
 from bidsNighres.bidsNighres.utils import return_path_rel_dataset
 
 from bids import BIDSLayout
 
-# def skullstrip(
-#     layout_in, layout_out, this_participant, bids_filter: dict, dry_run=False
-# ):
+# __version__ = open(join(dirname(realpath(__file__)), "version")).read()
 
 
-participant_label = "pilot001 pilot004 pilot005"
-
-participant_label = participant_label.split(" ")
-
-input_datasets = "/Users/barilari/data/V5_high-res_pilot001_analyses/analysis_high-res_pilot_nighres/inputs/raw"
-
-output_location = "/Users/barilari/data/V5_high-res_pilot001_analyses/analysis_high-res_pilot_nighres/outputs/derivatives/bidsNighres"
-
-bids_filter_file = "/Users/barilari/data/V5_high-res_pilot001_analyses/analysis_high-res_pilot_nighres/code/bidsNighres/filter_file_resample.json"
-
-images = ["UNIT1", "inv2"]
-
-resampling_factor = 2
-
-dry_run = False
-
-input_datasets = abspath(input_datasets)
-print(f"Input dataset: {input_datasets}")
-
-output_location = abspath(output_location)
-print(f"Output location: {output_location}")
-
-if bids_filter_file == "":
-    bids_filter = get_bids_filter_config()
-else:
-    bids_filter = get_bids_filter_config(bids_filter_file)
-
-layout_in = get_dataset_layout(input_datasets)
-check_layout(layout_in)
-
-layout_out = init_derivatives_layout(output_location)
-
-
-for participant in participant_label:
-
-    this_participant = participant
-
-    print_to_screen(f"\n[bold]Processing: sub-{this_participant}[/bold]")
-
-    sessions = layout_in.get_sessions(
-        subject=this_participant,
-        extension="nii",
-        regex_search=True,
-        **bids_filter["UNIT1"],
+def run_resample(command, env={}):
+    merged_env = os.environ
+    merged_env.update(env)
+    process = subprocess.Popen(
+        command,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        shell=True,
+        env=merged_env,
     )
+    while True:
+        line = process.stdout.readline()
+        line = str(line, "utf-8")[:-1]
+        print(line)
+        if line == "" and process.poll() != None:
+            break
+    if process.returncode != 0:
+        raise Exception("Non zero return code: %d" % process.returncode)
 
-    for ses in sessions:
 
-        print_to_screen(f"[bold] Processing: ses-{ses}[/bold]")
+@click.command()
+@click.option(
+    "--input-datasets",
+    help="""
+            The directory with the input dataset formatted according to the BIDS standard.
+            """,
+    type=click.Path(exists=True, dir_okay=True),
+    required=True,
+)
+@click.option(
+    "--output-location",
+    help="""
+            The directory where the output files should be stored.
+            If you are running group level analysis this folder should be prepopulated
+            with the results of the participant level analysis.
+            """,
+    type=click.Path(exists=False, dir_okay=True),
+    required=True,
+)
+# @click.option(
+#     "--resample-factor",
+#     help="""
+#             Factor by which the image will be resampled, for example  "2" means double the resoulution.
+#             """,
+#     type=click.IntRange(min=0.1, max=3, min_open=False, max_open=False, clamp=True),
+#     default=2,
+#     show_default=True,
+# )
+@click.option(
+    "--participant-label",
+    help="""
+            The label(s) of the participant(s) that should be analyzed. The label
+            corresponds to sub-<participant_label> from the BIDS spec
+            (so it does not include "sub-"). If this parameter is not
+            provided all subjects should be analyzed. Multiple
+            participants can be specified with a space separated list.
+            """,  # nargs ?
+    required=True,
+)
+@click.option(
+    "--bids-filter-file",
+    help="""
+            Path to a JSON file to filter input file
+            """,
+    default="",
+    show_default=True,
+)
+def main(
+    input_datasets,
+    output_location,
+    participant_label,
+    bids_filter_file,
+):
 
-        unit1_files = layout_in.get(
+    resampling_factor = 2
+
+    participant_label = participant_label.split(" ")
+
+    input_datasets = abspath(input_datasets)
+    print_to_screen(f"Input dataset: {input_datasets}")
+
+    output_location = abspath(output_location)
+    print_to_screen(f"Output location: {output_location}")
+
+    if bids_filter_file == "":
+        bids_filter = get_bids_filter_config()
+    else:
+        bids_filter = get_bids_filter_config(bids_filter_file)
+
+    layout_in = get_dataset_layout(input_datasets)
+    check_layout(layout_in)
+
+    layout_out = init_derivatives_layout(output_location)
+
+    for participant in participant_label:
+
+        this_participant = participant
+
+        print_to_screen(f"\n[bold]Processing: sub-{this_participant}[/bold]")
+
+        sessions = layout_in.get_sessions(
             subject=this_participant,
-            session=ses,
             extension="nii",
             regex_search=True,
             **bids_filter["UNIT1"],
         )
 
-        for bf in unit1_files:
+        for ses in sessions:
 
-            # entities = bf.get_entities()
+            print_to_screen(f"[bold] Processing: ses-{ses}[/bold]")
 
-            # TODO make output path generation more flexible
-            sub_entity = f"sub-{this_participant}"
-            ses_entity = f"ses-{ses}"
-            output_dir = join(layout_out.root, sub_entity, ses_entity, "anat")
-
-            # TODO find a way to match the entities between files
-            # use filter file to select only lores
-            # entities["acquisition"] = "lores"
-
-            UNIT1 = layout_in.get(
-                return_type="filename",
+            unit1_files = layout_in.get(
                 subject=this_participant,
                 session=ses,
                 extension="nii",
                 regex_search=True,
                 **bids_filter["UNIT1"],
             )
-            print_to_screen(
-                f"  t1w image: {return_path_rel_dataset(UNIT1[0], layout_in.root)}"
-            )
 
-            inv2 = layout_in.get(
-                return_type="filename",
-                subject=this_participant,
-                session=ses,
-                extension="nii",
-                regex_search=True,
-                **bids_filter["inv2"],
-            )
-            print_to_screen(
-                f"  2nd inversion image: {return_path_rel_dataset(inv2[0], layout_in.root)}"
-            )
+            for bf in unit1_files:
 
-            layout = BIDSLayout(output_location)
+                # entities = bf.get_entities()
 
-            # UNIT1
+                # TODO make output path generation more flexible
+                sub_entity = f"sub-{this_participant}"
+                ses_entity = f"ses-{ses}"
+                output_dir = join(layout_out.root, sub_entity, ses_entity, "anat")
 
-            pattern = "sub-{subject}[/ses-{session}]/anat/sub-{subject}[_ses-{session}][_acq-{acquisition}]_UNIT1{extension<.nii|.nii.gz|.json>|.nii.gz}"
+                # TODO find a way to match the entities between files
+                # use filter file to select only lores
+                # entities["acquisition"] = "lores"
 
-            entities = layout.parse_file_entities(UNIT1[0])
-            entities["acquisition"] = "r0p375"
-            filename = layout.build_path(entities, pattern, validate=False)
+                UNIT1 = layout_in.get(
+                    return_type="filename",
+                    subject=this_participant,
+                    session=ses,
+                    extension="nii",
+                    regex_search=True,
+                    **bids_filter["UNIT1"],
+                )
+                print_to_screen(
+                    f"  t1w image: {return_path_rel_dataset(UNIT1[0], layout_in.root)}"
+                )
 
-            nii = nb.load(UNIT1[0])
+                inv2 = layout_in.get(
+                    return_type="filename",
+                    subject=this_participant,
+                    session=ses,
+                    extension="nii",
+                    regex_search=True,
+                    **bids_filter["inv2"],
+                )
+                print_to_screen(
+                    f"  2nd inversion image: {return_path_rel_dataset(inv2[0], layout_in.root)}"
+                )
 
-            dimensions = nii.header.get_data_shape()
-            print(np.multiply(dimensions, 2))
+                T1map = layout_in.get(
+                    return_type="filename",
+                    subject=this_participant,
+                    session=ses,
+                    extension="nii",
+                    regex_search=True,
+                    **bids_filter["T1map"],
+                )
+                print_to_screen(
+                    f"  t1map image: {return_path_rel_dataset(T1map[0], layout_in.root)}"
+                )
 
-            vox_size = nii.header.get_zooms()
-            print(vox_size[1])
+                layout = BIDSLayout(output_location)
 
-            new_voxel_dims = vox_size[1] / 2
+                print("\n")
+                print("resampling:")
 
-            affine = nii.affine
+                # UNIT1
 
-            new_affine = rescale_affine(
-                affine,
-                voxel_dims=[new_voxel_dims, new_voxel_dims, new_voxel_dims],
-            )
+                print("\n")
+                print("- UNIT1")
 
-            resampled_img = resample_img(
-                UNIT1[0],
-                target_affine=new_affine,
-                target_shape=np.multiply(dimensions, resampling_factor),
-            )
+                pattern = "sub-{subject}[/ses-{session}]/anat/sub-{subject}[_ses-{session}][_acq-{acquisition}]_UNIT1{extension<.nii|.nii.gz|.json>|.nii.gz}"
 
-            resampled_img.to_filename(filename)
+                entities = layout.parse_file_entities(UNIT1[0])
+                entities["acquisition"] = "r0p375"
+                filename = layout.build_path(entities, pattern, validate=False)
 
-            # inv2
+                resampleNifti(UNIT1[0], resampling_factor, filename)
 
-            pattern = "sub-{subject}[/ses-{session}]/anat/sub-{subject}[_ses-{session}][_acq-{acquisition}][_inv-{inv}][_part-{part}]_MP2RAGE{extension<.nii|.nii.gz|.json>|.nii.gz}"
+                print("  done")
+                print("\n")
 
-            entities = layout.parse_file_entities(inv2[0])
-            entities["acquisition"] = "r0p375"
-            filename = layout.build_path(entities, pattern, validate=False)
+                # inv2
 
-            nii = nb.load(inv2[0])
+                print("- inv2")
 
-            dimensions = nii.header.get_data_shape()
-            print(np.multiply(dimensions, 2))
+                pattern = "sub-{subject}[/ses-{session}]/anat/sub-{subject}[_ses-{session}][_acq-{acquisition}][_inv-{inv}][_part-{part}]_MP2RAGE{extension<.nii|.nii.gz|.json>|.nii.gz}"
 
-            vox_size = nii.header.get_zooms()
-            print(vox_size[1])
+                entities = layout.parse_file_entities(inv2[0])
+                entities["acquisition"] = "r0p375"
+                filename = layout.build_path(entities, pattern, validate=False)
 
-            new_voxel_dims = vox_size[1] / 2
+                resampleNifti(inv2[0], resampling_factor, filename)
 
-            affine = nii.affine
+                print("  done")
+                print("\n")
 
-            new_affine = rescale_affine(
-                affine,
-                voxel_dims=[new_voxel_dims, new_voxel_dims, new_voxel_dims],
-            )
+                # T1map
 
-            resampled_img = resample_img(
-                inv2[0],
-                target_affine=new_affine,
-                target_shape=np.multiply(dimensions, resampling_factor),
-            )
+                print("- T1map")
 
-            resampled_img.to_filename(filename)
+                pattern = "sub-{subject}[/ses-{session}]/anat/sub-{subject}[_ses-{session}][_acq-{acquisition}]_T1map{extension<.nii|.nii.gz|.json>|.nii.gz}"
+
+                entities = layout.parse_file_entities(T1map[0])
+                entities["acquisition"] = "r0p375"
+                filename = layout.build_path(entities, pattern, validate=False)
+
+                resampleNifti(T1map[0], resampling_factor, filename)
+
+                print("  done")
+                print("\n")
+
+
+if __name__ == "__main__":
+    main()
