@@ -2,11 +2,11 @@
 
 # to be called from "code/bidsNighres"
 
-participant="pilot001 pilot004 pilot005"
+participant="pilot004 pilot005"
 
 root_dataset=${PWD}/../..
 
-input_dataset=${root_dataset}/inputs/raw/
+input_dataset=${root_dataset}/outputs/derivatives/bidsNighres/
 
 output_location=${root_dataset}/outputs/derivatives/bidsNighres/
 
@@ -14,13 +14,13 @@ filter_file=${root_dataset}/code/bidsNighres/filter_file.json
 
 echo "${input_dataset}"
 
-python ../lib/bidsNighres/run.py \
-    --input-datasets "${input_dataset}" \
-    --output-location "${output_location}" \
-    --analysis-level subject \
-    --participant-label "${participant}" \
-    --action skullstrip \
-    --bids-filter-file "${filter_file}"
+# python ../lib/bidsNighres/run.py \
+#     --input-datasets "${input_dataset}" \
+#     --output-location "${output_location}" \
+#     --analysis-level subject \
+#     --participant-label "${participant}" \
+#     --action skullstrip \
+#     --bids-filter-file "${filter_file}"
 
 python ../lib/bidsNighres/run.py \
     --input-datasets "${input_dataset}" \
