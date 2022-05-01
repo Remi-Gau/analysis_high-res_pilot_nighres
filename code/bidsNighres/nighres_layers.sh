@@ -2,7 +2,7 @@
 
 # to be called from "code/bidsNighres"
 
-participant="pilot001 pilot004 pilot006"
+participant="pilot001 pilot004 pilot005"
 
 root_dataset=${PWD}/../..
 
