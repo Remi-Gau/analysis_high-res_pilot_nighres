@@ -2,17 +2,16 @@
     "UNIT1": {
         "datatype": "anat",
         "suffix": "UNIT1",
-        "acquisition": "^r0p375$"
+        "acquisition": "^r0p75$"
     },
     "T1map": {
         "datatype": "anat",
-        "suffix": "T1map",
-        "acquisition": "^r0p375$"
+        "suffix": "T1map"
     },
     "inv2": {
         "datatype": "anat",
         "inv": 2,
         "suffix": "MP2RAGE",
-        "acquisition": "^r0p375$"
+        "acquisition": "^r0p75$"
     }
 }
