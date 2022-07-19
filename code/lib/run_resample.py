@@ -205,7 +205,7 @@ def main(
                 entities["acquisition"] = "r0p375"
                 filename = layout.build_path(entities, pattern, validate=False)
 
-                resampleNifti(UNIT1[0], resampling_factor, filename)
+                # resampleNifti(UNIT1[0], resampling_factor, filename)
 
                 print("  done")
                 print("\n")
@@ -220,7 +220,7 @@ def main(
                 entities["acquisition"] = "r0p375"
                 filename = layout.build_path(entities, pattern, validate=False)
 
-                resampleNifti(inv2[0], resampling_factor, filename)
+                # resampleNifti(inv2[0], resampling_factor, filename)
 
                 print("  done")
                 print("\n")
@@ -235,7 +235,7 @@ def main(
                 entities["acquisition"] = "r0p375"
                 filename = layout.build_path(entities, pattern, validate=False)
 
-                resampleNifti(T1map[0], resampling_factor, filename)
+                # resampleNifti(T1map[0], resampling_factor, filename)
 
                 print("  done")
                 print("\n")
